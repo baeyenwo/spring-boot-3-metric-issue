@@ -3,6 +3,7 @@ package com.bezkoder.spring.restapi.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.micrometer.core.annotation.Timed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +28,20 @@ public class TutorialController {
   @Autowired
   TutorialService tutorialService;
 
+  @Timed
   @GetMapping("/tutorials")
   public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
+    return internalGetAllTutorials(title);
+  }
+
+  @Timed(value="gts_http_server_requests")
+  @GetMapping("/tutorials2")
+  public ResponseEntity<List<Tutorial>> getAllTutorials2(@RequestParam(required = false) String title) {
+    return internalGetAllTutorials(title);
+  }
+
+
+  private ResponseEntity<List<Tutorial>> internalGetAllTutorials(@RequestParam(required = false) String title) {
     try {
       List<Tutorial> tutorials = new ArrayList<Tutorial>();
 
