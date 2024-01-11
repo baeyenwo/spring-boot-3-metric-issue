@@ -1,5 +1,6 @@
 package com.bezkoder.spring.restapi;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,8 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collections;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SpringBoot3RestApiExampleApplicationTests {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpringBoot3RestApiExampleApplicationTests.class);
+class SpringBoot3RestApiMetricsTests {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpringBoot3RestApiMetricsTests.class);
 
 	@LocalManagementPort
 	int adminPort;
@@ -43,23 +44,38 @@ class SpringBoot3RestApiExampleApplicationTests {
 	}
 
 	@Test
-	void shouldReturnStatusHealthyThroughPrometheus() {
-		// Given - When
-		// http_client_requests_active_seconds
-		restTemplate.getForObject("/api/tutorials", String.class);
+	void shouldReturnHttpServerRequestsMetrics() {
+		// Given
 
-		// http_custom -> all spring labels disappear
-		restTemplate.getForObject("/api/tutorials2", String.class);
+		// When
+		// endpoint is annotated @Timed, not named
+		restTemplate.getForObject("/mysite/api/tutorials1", String.class);
 
-		ResponseEntity<String> initialResponse = sendRequest(adminRestTemplate, "/admin/prometheus", MediaType.ALL);
+		// Then
+		// http.server.requests with label "uri:/mysite/api/tutorials1" is added
+		String body1 = sendRequest("/admin/metrics/http.server.requests", MediaType.ALL).getBody();
+		Assertions.assertThat(body1).contains("/mysite/api/tutorials1");
+
+
+		// When
+		// endpoint is annotated @Timed, named
+		restTemplate.getForObject("/mysite/api/tutorials2", String.class);
+
+		// Then
+		// ERROR: http.server.requests with label "uri:/mysite/api/tutorials1" is NOT added
+		String body2 = sendRequest("/admin/metrics/http.server.requests", MediaType.ALL).getBody();
+		Assertions.assertThat(body2).contains("/mysite/api/tutorials2");
+
+		// raw prometheus output to verify
+		sendRequest("/admin/prometheus", MediaType.ALL);
 	}
 
-	private ResponseEntity<String> sendRequest(RestTemplate restTemplate, String url, MediaType accept) {
+	private ResponseEntity<String> sendRequest(String url, MediaType accept) {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setAccept(Collections.singletonList(accept));
 		HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
 
-		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+		ResponseEntity<String> response = adminRestTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 		LOGGER.info("Response received for '{}': {}", url, response.getBody());
 		return response;
 	}
