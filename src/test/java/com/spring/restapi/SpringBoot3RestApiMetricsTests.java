@@ -62,7 +62,7 @@ class SpringBoot3RestApiMetricsTests {
 		restTemplate.getForObject("/mysite/api/tutorials2", String.class);
 
 		// Then
-		// ERROR: http.server.requests with label "uri:/mysite/api/tutorials1" is NOT added
+		// ERROR: http.server.requests with label "uri:/mysite/api/tutorials2" is NOT added
 		String body2 = sendRequest("/admin/metrics/http.server.requests", MediaType.ALL).getBody();
 		Assertions.assertThat(body2).contains("/mysite/api/tutorials2");
 
