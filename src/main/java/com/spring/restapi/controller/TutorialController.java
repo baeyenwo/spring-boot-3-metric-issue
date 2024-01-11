@@ -1,4 +1,4 @@
-package com.bezkoder.spring.restapi.controller;
+package com.spring.restapi.controller;
 
 
 import io.micrometer.core.annotation.Timed;

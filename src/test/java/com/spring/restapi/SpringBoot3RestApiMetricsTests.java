@@ -1,4 +1,4 @@
-package com.bezkoder.spring.restapi;
+package com.spring.restapi;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class SpringBoot3RestApiMetricsTests {
 	@BeforeEach
 	public void addRootUri() {
 		adminRestTemplate = restTemplateBuilder
-				.rootUri("http://localhost:" + adminPort) // this endpoint is on a separate port only accessible from within the tenant -> no authentication needed.
+				.rootUri("http://localhost:" + adminPort)
 				.build();
 	}
 	@Test
