@@ -13,10 +13,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Path("/api")
 public class TutorialController {
 
+  @GET
+  @Path("/tutorials0")
+  public ResponseEntity<String> getAllTutorials0(@RequestParam(required = false) String title) {
+    return internalGetAllTutorials();
+  }
+
   @Timed
   @GET
   @Path("/tutorials1")
-  public ResponseEntity<String> getAllTutorials(@RequestParam(required = false) String title) {
+  public ResponseEntity<String> getAllTutorials1(@RequestParam(required = false) String title) {
     return internalGetAllTutorials();
   }
 

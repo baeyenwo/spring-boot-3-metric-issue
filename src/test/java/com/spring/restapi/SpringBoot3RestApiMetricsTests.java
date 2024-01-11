@@ -48,13 +48,23 @@ class SpringBoot3RestApiMetricsTests {
 		// Given
 
 		// When
+		// endpoint is not annotated @Timed
+		restTemplate.getForObject("/mysite/api/tutorials0", String.class);
+
+		// Then
+		// http.server.requests with label "uri:/mysite/api/tutorials0" is added
+		String body1 = sendRequest("/admin/metrics/http.server.requests", MediaType.ALL).getBody();
+		Assertions.assertThat(body1).contains("/mysite/api/tutorials0");
+
+
+		// When
 		// endpoint is annotated @Timed, not named
 		restTemplate.getForObject("/mysite/api/tutorials1", String.class);
 
 		// Then
 		// http.server.requests with label "uri:/mysite/api/tutorials1" is added
-		String body1 = sendRequest("/admin/metrics/http.server.requests", MediaType.ALL).getBody();
-		Assertions.assertThat(body1).contains("/mysite/api/tutorials1");
+		String body0 = sendRequest("/admin/metrics/http.server.requests", MediaType.ALL).getBody();
+		Assertions.assertThat(body0).contains("/mysite/api/tutorials1");
 
 
 		// When
